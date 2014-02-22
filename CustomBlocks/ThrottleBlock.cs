@@ -14,15 +14,24 @@ namespace CustomBlocks
         private readonly ITargetBlock<T> _actionBlock;
         private readonly IPropagatorBlock<T, T> _bufferBlock;
         private readonly Timer _timer;
-        private T _message;
+        private T _currentMessage;
         private readonly object _messageLock;
 
         public ThrottleBlock(int timeoutMilliseconds)
         {
+            // Store timeout.
             _timeoutMilliseconds = timeoutMilliseconds;
+
+            // Create the incoming block that stores the message and (re-)starts the timer.
             _actionBlock = new ActionBlock<T>(new Action<T>(ThrottleInput));
+
+            // Create a buffer to store messages that will propagate out.
             _bufferBlock = new BufferBlock<T>();
+
+            // Create a timer that will propagate the last message to the buffer after the timeout.
             _timer = new Timer(PostMessageToBuffer);
+
+            // Create lock to ensure thread safety when accessing the latest message.
             _messageLock = new object();
         }
 
@@ -30,7 +39,8 @@ namespace CustomBlocks
         {
             lock (_messageLock)
             {
-                _message = message;
+                // Save latest message and (re-)start timer.
+                _currentMessage = message;
                 _timer.Change(_timeoutMilliseconds, Timeout.Infinite);
             }
         }
@@ -38,7 +48,8 @@ namespace CustomBlocks
         private void PostMessageToBuffer(object state)
         {
             lock (_messageLock)
-                _bufferBlock.Post(_message);
+                // Push latest message to the outgoing buffer.
+                _bufferBlock.Post(_currentMessage);
         }
 
         #region IPropagatorBlock Implementation
