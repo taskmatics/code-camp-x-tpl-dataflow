@@ -11,10 +11,10 @@ namespace CustomBlocks
         static void Main(string[] args)
         {
             // Demo 1
-            //TypeAheadDemo();
+            TypeAheadDemo();
 
             // Demo 2
-            FileDropSourceDemo();
+            //FileDropSourceDemo();
 
             Console.ReadLine();
         }

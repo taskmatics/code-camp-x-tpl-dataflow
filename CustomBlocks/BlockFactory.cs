@@ -47,7 +47,8 @@ namespace CustomBlocks
             // Create a buffer to store messages that will propagate out.
             var bufferBlock = new BufferBlock<T>();
 
-            // Create the incoming block that asynchronously delays and then propagates the message to the buffer.
+            // Create the incoming block that asynchronously delays and then propagates the message 
+            // to the buffer.
             var actionBlock = new ActionBlock<T>(new Func<T, Task>(
                 async message =>
                 {
